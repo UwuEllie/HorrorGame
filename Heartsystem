@@ -1,0 +1,130 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class HeartSystem : MonoBehaviour
+{
+    public Animator anim;
+    public GameObject[] hearts; 
+    public GameObject candle;
+    public GameObject pumpkin;
+    public int life = 3;
+    public int candies = 0;
+    public float knockback;
+    private bool Dead;
+    private int maxLife = 5;
+    public Text candytext;
+    public Rigidbody2D rb;
+
+
+
+    private void Start()
+        {
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+    }
+        void Update()
+        {
+            if (Dead == true)
+            {
+                anim.SetBool("Dead", Dead); 
+            }
+             OutOfWorld();
+        }
+
+        public void TakeDamage()
+        {
+
+            if (life >= 1)
+            {
+
+                life -= 1;  
+                hearts[life].gameObject.SetActive(false); 
+                if (life < 1)
+                {
+                    Dead = true;
+                }
+            }
+
+           
+        }
+
+    private void Knockback()
+    {
+        if (candle.gameObject.transform.position.x > transform.position.x)
+        {
+            rb.velocity = new Vector2(-knockback, rb.velocity.y);
+        }
+        else if (transform.position.x > candle.gameObject.transform.position.x)
+        {
+            rb.velocity = new Vector2(-knockback, rb.velocity.y);
+        }
+        if (pumpkin.gameObject.transform.position.x > transform.position.x)
+        {
+            rb.velocity = new Vector2(-knockback, rb.velocity.y);
+        }
+        else if (transform.position.x > pumpkin.gameObject.transform.position.x)
+        {
+            rb.velocity = new Vector2(-knockback, rb.velocity.y);
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Heart :)") && life < maxLife && Dead == false) 
+        {
+            AddLife();
+            Destroy(collision.gameObject);
+        }
+        else if (collision.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage();
+        }
+        else if (collision.gameObject.CompareTag("Candy"))
+        {
+            Destroy(collision.gameObject);
+            candies += 1; 
+            candytext.text = candies.ToString(); 
+        } 
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+       
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage();
+
+        }
+        else if (collision.gameObject.CompareTag("Spikes"))
+        {
+            TakeDamage();
+
+        }
+
+    }
+    public void AddLife()
+    {
+        if (life < maxLife && Dead == false)
+        {
+            hearts[life].gameObject.SetActive(true); 
+            life += 1; 
+        }
+        
+    }
+    private void GhostDeath()
+    {
+        SceneManager.LoadScene("GameOver"); 
+    }
+    private void OutOfWorld()
+    {
+        if(transform.position.y < -15)
+        {
+            TakeDamage();
+            transform.position = new Vector3(-9.3f, -3.9f, transform.position.z);
+            
+        }
+
+    }
+    
+}
